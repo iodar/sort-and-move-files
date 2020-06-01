@@ -39,7 +39,13 @@ function New-Testdata {
     New-Item -ItemType File -Path $TargetFolder -Name "005.JPEG" &&
     Set-ItemProperty -Path "$TargetFolder/005.JPEG" -Name LastWriteTime -Value "2020-04-13T16:45:23.763"
 
-    return @("$TargetFolder/001.JEPG", "$TargetFolder/002.JEPG", "$TargetFolder/003.JEPG", "$TargetFolder/004.JEPG", "$TargetFolder/005.JEPG")
+    return @(
+        "$TargetFolder/001.JEPG", 
+        "$TargetFolder/002.JEPG", 
+        "$TargetFolder/003.JEPG", 
+        "$TargetFolder/004.JEPG", 
+        "$TargetFolder/005.JEPG"
+    )
 }
 
 # TESTS
@@ -57,22 +63,22 @@ Describe "Sort-AndMoveItems.ps1" {
 
         It "should import all files into structure" {
             # prepare
-            New-Testdata -TargetFolder "$testFolder/source"
-
-            # exec
-            & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"
-
-            # assert
-            $actualStructure = Resolve-Path (Get-ChildItem -Recurse -Path "$testFolder/target/*").FullName -Relative
             $relTestFolder = Resolve-Path -Relative "$testFolder"
-            $actualStructure | Should -BeIn @(
+            $expectedStructure = @(
                 "$relTestFolder/target/2019-09-10/001.JPEG",
                 "$relTestFolder/target/2020-01-17/002.JPEG",
                 "$relTestFolder/target/2020-02-12/003.JPEG",
                 "$relTestFolder/target/2020-02-12/004.JPEG",
                 "$relTestFolder/target/2020-04-13/005.JPEG"
             )
+            New-Testdata -TargetFolder "$testFolder/source"
 
+            # exec
+            & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"
+
+            # assert
+            $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path "$testFolder/target/*").FullName -Relative)
+            $actualStructure | Should -Be $expectedStructure
         }
     }
 }
