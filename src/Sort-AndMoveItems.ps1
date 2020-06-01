@@ -14,8 +14,41 @@ param (
     $CustomPostfix
 )
 
-return @{
-    SourceFolder  = $SourceFolder
-    TargetFolder  = $TargetFolder
-    CustomPostfix = $CustomPostfix
+function Get-AllElementsRecurse {
+    param(
+        [string] $Path
+    )
+
+    return Get-ChildItem -Path $Path -Recurse
 }
+
+function Get-GroupsAndFiles {
+    param (
+        [System.IO.FileInfo[]] $Files,
+        [string] $GroupDateString = "yyyy-MM-dd"
+    )
+
+    return ($Files | Group-Object -Property { $_.LastWriteTime.toString($GroupDateString) })
+}
+
+function Start-CreationOfNewStructureAndMoveFiles {
+    param (
+        [Microsoft.PowerShell.Commands.GroupInfo[]] $GroupsAndFiles,
+        [string] $Target
+    )
+
+    $GroupsAndFiles | ForEach-Object {
+        $currentGroupName = $_.Name
+        $currentGroupTarget = "$Target/$currentGroupName"
+        New-Item -Type Directory -Path "$currentGroupTarget"
+        $_.Group | ForEach-Object {
+            $fileName = $_.Name
+            $currentFileName = $_.FullName
+            Move-Item -Path "$currentFileName" -Destination "$currentGroupTarget/$fileName"
+        }
+    }
+}
+
+$elementsToGroupAndMove = Get-AllElementsRecurse -Path $SourceFolder
+$groupsAndFiles = Get-GroupsAndFiles -Files $elementsToGroupAndMove -GroupDateString "yyyy-MM-dd"
+Start-CreationOfNewStructureAndMoveFiles -GroupsAndFiles $groupsAndFiles -Target $TargetFolder
