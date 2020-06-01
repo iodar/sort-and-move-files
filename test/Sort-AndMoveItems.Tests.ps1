@@ -57,10 +57,10 @@ Describe "Sort-AndMoveItems.ps1" {
 
         It "should import all files into structure" {
             # prepare
-            $testfiles = New-Testdata -TargetFolder "$testFolder/source"
+            New-Testdata -TargetFolder "$testFolder/source"
 
             # exec
-            $scriptReturnValue = & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"
+            & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"
 
             # assert
             $actualStructure = Resolve-Path (Get-ChildItem -Recurse -Path "$testFolder/target/*").FullName -Relative
