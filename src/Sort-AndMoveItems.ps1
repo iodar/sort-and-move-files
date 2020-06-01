@@ -24,6 +24,7 @@ function Get-AllElementsRecurse {
 
 function Get-GroupsAndFiles {
     param (
+        [Parameter(ValueFromPipeline = 1)]
         [System.IO.FileInfo[]] $Files,
         [string] $GroupDateString = "yyyy-MM-dd"
     )
@@ -33,6 +34,7 @@ function Get-GroupsAndFiles {
 
 function Start-CreationOfNewStructureAndMoveFiles {
     param (
+        [Parameter(ValueFromPipeline = 1)]
         [Microsoft.PowerShell.Commands.GroupInfo[]] $GroupsAndFiles,
         [string] $Target
     )
@@ -49,6 +51,6 @@ function Start-CreationOfNewStructureAndMoveFiles {
     }
 }
 
-$elementsToGroupAndMove = Get-AllElementsRecurse -Path $SourceFolder
-$groupsAndFiles = Get-GroupsAndFiles -Files $elementsToGroupAndMove -GroupDateString "yyyy-MM-dd"
-Start-CreationOfNewStructureAndMoveFiles -GroupsAndFiles $groupsAndFiles -Target $TargetFolder
+Get-AllElementsRecurse -Path $SourceFolder |
+Get-GroupsAndFiles -GroupDateString "yyyy-MM-dd" |
+Start-CreationOfNewStructureAndMoveFiles -Target $TargetFolder
