@@ -31,7 +31,7 @@ function New-Testdata {
     Set-ItemProperty -Path "$TargetFolder/002.JPEG" -Name LastWriteTime -Value "2020-01-17T16:45:23.763"
 
     New-Item -ItemType File -Path $TargetFolder -Name "003.JPEG" &&
-    Set-ItemProperty -Path "$TargetFolder/003.JPEG" -Name LastWriteTime -Value "2020-02-21T16:45:23.763"
+    Set-ItemProperty -Path "$TargetFolder/003.JPEG" -Name LastWriteTime -Value "2020-02-12T16:45:23.763"
 
     New-Item -ItemType File -Path $TargetFolder -Name "004.JPEG" &&
     Set-ItemProperty -Path "$TargetFolder/004.JPEG" -Name LastWriteTime -Value "2020-02-12T16:45:23.763"
@@ -42,15 +42,13 @@ function New-Testdata {
     return @("$TargetFolder/001.JEPG", "$TargetFolder/002.JEPG", "$TargetFolder/003.JEPG", "$TargetFolder/004.JEPG", "$TargetFolder/005.JEPG")
 }
 
-
+# TESTS
 
 Describe "Sort-AndMoveItems.ps1" {
     Context "Simple Import" {
         BeforeEach -Scriptblock {
             New-Item -Type Directory -Path "$testFolder/source"
             New-Item -Type Directory -Path "$testFolder/target"
-            New-Item -Type File -Path "$testFolder/target/001.JPEG"
-            # Start-Sleep -Seconds 1000
         }
 
         AfterEach -Scriptblock {
@@ -65,13 +63,14 @@ Describe "Sort-AndMoveItems.ps1" {
             $scriptReturnValue = & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"
 
             # assert
-            $actualStructure = Resolve-Path (Get-ChildItem -Recurse -Path "$testFolder/target").FullName -Relative
-            $actualStructure | Should -Be @(
-                "$testFolder/target/2019-09-10/001.JPEG",
-                "$testFolder/target/2020-01-17/002.JPEG",
-                "$testFolder/target/2019-02-12/003.JPEG",
-                "$testFolder/target/2019-02-12/004.JPEG",
-                "$testFolder/target/2019-04-13/005.JPEG"
+            $actualStructure = Resolve-Path (Get-ChildItem -Recurse -Path "$testFolder/target/*").FullName -Relative
+            $relTestFolder = Resolve-Path -Relative "$testFolder"
+            $actualStructure | Should -BeIn @(
+                "$relTestFolder/target/2019-09-10/001.JPEG",
+                "$relTestFolder/target/2020-01-17/002.JPEG",
+                "$relTestFolder/target/2020-02-12/003.JPEG",
+                "$relTestFolder/target/2020-02-12/004.JPEG",
+                "$relTestFolder/target/2020-04-13/005.JPEG"
             )
 
         }
