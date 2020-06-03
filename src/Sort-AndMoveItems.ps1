@@ -38,9 +38,27 @@ function Start-CreationOfNewStructureAndMoveFiles {
     )
 
     $GroupsAndFiles | ForEach-Object {
+        $autoIncrementIndex = 0
         $currentGroupName = $_.Name
         $currentGroupTarget = "$Target/$currentGroupName"
-        New-Item -Type Directory -Path "$currentGroupTarget"
+
+        if (!(Test-Path $currentGroupTarget)) { 
+            New-Item -Type Directory -Path "$currentGroupTarget"
+        }
+        else {
+            while (Test-Path $currentGroupTarget) {
+                # transform from int to string and left pad `0`
+                $autoIncrementIndex++
+                $postfix = $autoIncrementIndex.ToString().PadLeft(3, '0')
+                # append postfix
+                $currentGroupTarget += "_$postfix"
+            }
+
+            # create folder
+            New-Item -Type Directory -Path "$currentGroupTarget"
+        }
+
+
         $_.Group | ForEach-Object {
             $fileName = $_.Name
             $currentFileName = $_.FullName
