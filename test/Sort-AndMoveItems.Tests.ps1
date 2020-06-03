@@ -1,3 +1,7 @@
+$tags = @{
+    acceptance = "Acceptance"
+}
+
 # TESTS
 
 Describe "Sort-AndMoveItems.ps1" {
@@ -73,7 +77,7 @@ Describe "Sort-AndMoveItems.ps1" {
         Invoke-CleanUp
     }
     
-    Context "Simple Import" {
+    Context "Simple Import" -Tag $tags.acceptance {
         It "should import all files into structure" {
             # prepare
             $relTestFolder = Resolve-Path -Relative "$testFolder"
@@ -83,7 +87,7 @@ Describe "Sort-AndMoveItems.ps1" {
                 (Join-Path $relTestFolder "target" "2020-02-12" "003.JPEG"),
                 (Join-Path $relTestFolder "target" "2020-02-12" "004.JPEG"),
                 (Join-Path $relTestFolder "target" "2020-04-13" "005.JPEG")
-            )
+            ) | Sort-Object
             New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
 
             # exec
@@ -92,13 +96,48 @@ Describe "Sort-AndMoveItems.ps1" {
             # assert
             $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
             $actualStructure | Should -Be $expectedStructure
-
-            Start-Sleep -Seconds 10
         }
 
     }
 
     Context "Complex Import" {
+        Context "2 consecutive imports" {
+            It "should create new folder with automatic increment as postfix" -Tag $tags.acceptance {
+                # prepare
+                New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
+                
+                $relTestFolder = Resolve-Path -Relative "$testFolder"
+                $expectedStructure = @(
+                    (Join-Path $relTestFolder "target" "2019-09-10" "001.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-01-17" "002.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-02-12" "003.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-02-12" "004.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-04-13" "005.JPEG")
+                    (Join-Path $relTestFolder "target" "2019-09-10_001" "006.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-01-17_001" "007.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-01-17_001" "008.JPEG")
+                ) | Sort-Object
 
+                # exec #1/2
+                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
+                
+                # create new data
+                New-Item -ItemType File -Path (Join-Path $testFolder "source" -Resolve) -Name "006.JPEG" &&
+                Set-ItemProperty -Path (Join-Path $testFolder "source" "006.JPEG" -Resolve) -Name LastWriteTime -Value "2019-09-10T16:45:23.763"
+                
+                New-Item -ItemType File -Path (Join-Path $testFolder "source" -Resolve) -Name "007.JPEG" &&
+                Set-ItemProperty -Path (Join-Path $testFolder "source" "007.JPEG" -Resolve) -Name LastWriteTime -Value "2020-01-17T16:45:23.763"
+                
+                New-Item -ItemType File -Path (Join-Path $testFolder "source" -Resolve) -Name "008.JPEG" &&
+                Set-ItemProperty -Path (Join-Path $testFolder "source" "008.JPEG" -Resolve) -Name LastWriteTime -Value "2020-01-17T16:45:23.763"
+                
+                # exec #2/2
+                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
+
+                # assert
+                $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative) | Sort-Object
+                $actualStructure | Should -Be $expectedStructure
+            }
+        }
     }
 }
