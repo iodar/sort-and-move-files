@@ -5,13 +5,13 @@
 > **IMPORTANT:** Currently only `Windows` is supported but support for `Linux` is planned.
 
 ```powershell
-.\Sort-AndMoveItems.ps1 -Source .\your\media\source -Target .\storage\media\files
+.\Sort-AndMoveItems.ps1 -SourceFolder .\your\media\source -TargetFolder .\storage\media\files
 ```
 
-| Parameter | Usage                                                              |
-| --------- | ------------------------------------------------------------------ |
-| `-Source` | Folder in which script will recursively search for files           |
-| `-Target` | Folder where script will create folder structure and move files to |
+| Parameter       | Usage                                                              |
+| --------------- | ------------------------------------------------------------------ |
+| `-SourceFolder` | Folder in which script will recursively search for files           |
+| `-TargetFolder` | Folder where script will create folder structure and move files to |
 
 ### Prerequisites For Development
 
