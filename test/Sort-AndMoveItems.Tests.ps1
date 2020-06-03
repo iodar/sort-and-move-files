@@ -126,15 +126,12 @@ Describe "Sort-AndMoveItems.ps1" {
                 & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
                 
                 # create new data
-                New-Item -ItemType File -Path (Join-Path $testFolder "source" -Resolve) -Name "006.JPEG" &&
-                Set-ItemProperty -Path (Join-Path $testFolder "source" "006.JPEG" -Resolve) -Name LastWriteTime -Value "2019-09-10T16:45:23.763"
-                
-                New-Item -ItemType File -Path (Join-Path $testFolder "source" -Resolve) -Name "007.JPEG" &&
-                Set-ItemProperty -Path (Join-Path $testFolder "source" "007.JPEG" -Resolve) -Name LastWriteTime -Value "2020-01-17T16:45:23.763"
-                
-                New-Item -ItemType File -Path (Join-Path $testFolder "source" -Resolve) -Name "008.JPEG" &&
-                Set-ItemProperty -Path (Join-Path $testFolder "source" "008.JPEG" -Resolve) -Name LastWriteTime -Value "2020-01-17T16:45:23.763"
-                
+                New-TestdataSet -Target (Join-Path $testFolder "source" -Resolve) -TestdataMap @{
+                    "006.JPEG" = "2019-09-10T16:45:23.763"
+                    "007.JPEG" = "2020-01-17T16:45:23.763"
+                    "008.JPEG" = "2020-01-17T16:45:23.763"
+                }
+
                 # exec #2/2
                 & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
 
