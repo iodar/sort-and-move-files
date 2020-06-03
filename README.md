@@ -3,7 +3,7 @@
 ### Prerequisites
 
 - pwsh >= 7.x
-- tests: pester >=4.10.x
+- tests: pester >=5.x
 
 ### Run Tests
 
