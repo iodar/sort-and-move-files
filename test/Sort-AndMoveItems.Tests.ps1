@@ -50,23 +50,30 @@ Describe "Sort-AndMoveItems.ps1" {
             )
         }
 
+        function Invoke-CreationOfTestfolders {
+            New-Item -Type Directory -Path (Join-Path $testFolder "source")
+            New-Item -Type Directory -Path (Join-Path $testFolder "target")
+        }
+
+        function Invoke-CleanUp {
+            Test-Path "$testFolder" && Remove-Item -Recurse -Path "$testFolder"
+        }
+
         # CUSTOM VARS
         
         $scriptFile = Join-Path $PSScriptRoot ".." "src" "Sort-AndMoveItems.ps1" -Resolve
         $testFolder = Join-Path $PSScriptRoot "temp"
     }
+
+    BeforeEach -Scriptblock {
+        Invoke-CreationOfTestfolders
+    }
+
+    AfterEach -Scriptblock {
+        Invoke-CleanUp
+    }
     
     Context "Simple Import" {
-        BeforeEach -Scriptblock {
-            
-            New-Item -Type Directory -Path (Join-Path $testFolder "source")
-            New-Item -Type Directory -Path (Join-Path $testFolder "target")
-        }
-
-        AfterEach -Scriptblock {
-            Test-Path "$testFolder" && Remove-Item -Recurse -Path "$testFolder"
-        }
-
         It "should import all files into structure" {
             # prepare
             $relTestFolder = Resolve-Path -Relative "$testFolder"
@@ -85,6 +92,13 @@ Describe "Sort-AndMoveItems.ps1" {
             # assert
             $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
             $actualStructure | Should -Be $expectedStructure
+
+            Start-Sleep -Seconds 10
         }
+
+    }
+
+    Context "Complex Import" {
+
     }
 }
