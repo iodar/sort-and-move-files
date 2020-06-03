@@ -105,7 +105,7 @@ Describe "Sort-AndMoveItems.ps1" {
     }
 
     Context "Complex Import" {
-        Context "2 consecutive imports" {
+        Context "3 consecutive imports" {
             It "should create new folder with automatic increment as postfix" -Tag $tags.acceptance {
                 # prepare
                 New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
@@ -120,9 +120,11 @@ Describe "Sort-AndMoveItems.ps1" {
                     (Join-Path $relTestFolder "target" "2019-09-10_001" "006.JPEG"),
                     (Join-Path $relTestFolder "target" "2020-01-17_001" "007.JPEG"),
                     (Join-Path $relTestFolder "target" "2020-01-17_001" "008.JPEG")
+                    (Join-Path $relTestFolder "target" "2019-09-10_002" "009.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-01-17_002" "010.JPEG")
                 ) | Sort-Object
 
-                # exec #1/2
+                # exec #1/3
                 & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
                 
                 # create new data
@@ -131,8 +133,17 @@ Describe "Sort-AndMoveItems.ps1" {
                     "007.JPEG" = "2020-01-17T16:45:23.763"
                     "008.JPEG" = "2020-01-17T16:45:23.763"
                 }
+                
+                # exec #2/3
+                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
+                
+                # create new data
+                New-TestdataSet -Target (Join-Path $testFolder "source" -Resolve) -TestdataMap @{
+                    "009.JPEG" = "2019-09-10T16:45:23.763"
+                    "010.JPEG" = "2020-01-17T16:45:23.763"
+                }
 
-                # exec #2/2
+                # exec #3/3
                 & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
 
                 # assert
