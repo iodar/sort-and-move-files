@@ -53,14 +53,14 @@ Describe "Sort-AndMoveItems.ps1" {
         # CUSTOM VARS
         
         $scriptFile = Join-Path $PSScriptRoot ".." "src" "Sort-AndMoveItems.ps1" -Resolve
-        $testFolder = Join-Path $PSScriptRoot "temp" -Resolve
+        $testFolder = Join-Path $PSScriptRoot "temp"
     }
     
     Context "Simple Import" {
         BeforeEach -Scriptblock {
             
-            New-Item -Type Directory -Path (Join-Path $testFolder "source" -Resolve)
-            New-Item -Type Directory -Path (Join-Path $testFolder "target" -Resolve)
+            New-Item -Type Directory -Path (Join-Path $testFolder "source")
+            New-Item -Type Directory -Path (Join-Path $testFolder "target")
         }
 
         AfterEach -Scriptblock {
@@ -71,20 +71,19 @@ Describe "Sort-AndMoveItems.ps1" {
             # prepare
             $relTestFolder = Resolve-Path -Relative "$testFolder"
             $expectedStructure = @(
-                # FIXME: use join path to resolve paths
-                "$relTestFolder/target/2019-09-10/001.JPEG",
-                "$relTestFolder/target/2020-01-17/002.JPEG",
-                "$relTestFolder/target/2020-02-12/003.JPEG",
-                "$relTestFolder/target/2020-02-12/004.JPEG",
-                "$relTestFolder/target/2020-04-13/005.JPEG"
+                (Join-Path $relTestFolder "target" "2019-09-10" "001.JPEG"),
+                (Join-Path $relTestFolder "target" "2020-01-17" "002.JPEG"),
+                (Join-Path $relTestFolder "target" "2020-02-12" "003.JPEG"),
+                (Join-Path $relTestFolder "target" "2020-02-12" "004.JPEG"),
+                (Join-Path $relTestFolder "target" "2020-04-13" "005.JPEG")
             )
-            New-Testdata -TargetFolder "$testFolder/source"
+            New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
 
             # exec
-            & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"
+            & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
 
             # assert
-            $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path "$testFolder/target/*").FullName -Relative)
+            $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
             $actualStructure | Should -Be $expectedStructure
         }
     }
