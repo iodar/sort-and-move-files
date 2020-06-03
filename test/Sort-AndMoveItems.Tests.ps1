@@ -52,15 +52,15 @@ Describe "Sort-AndMoveItems.ps1" {
 
         # CUSTOM VARS
         
-        $scriptFile = "$PSScriptRoot/../src/Sort-AndMoveItems.ps1"
-        $testFolder = "$PSScriptRoot/temp"
+        $scriptFile = Join-Path $PSScriptRoot ".." "src" "Sort-AndMoveItems.ps1" -Resolve
+        $testFolder = Join-Path $PSScriptRoot "temp" -Resolve
     }
     
     Context "Simple Import" {
         BeforeEach -Scriptblock {
             
-            New-Item -Type Directory -Path "$testFolder/source"
-            New-Item -Type Directory -Path "$testFolder/target"
+            New-Item -Type Directory -Path (Join-Path $testFolder "source" -Resolve)
+            New-Item -Type Directory -Path (Join-Path $testFolder "target" -Resolve)
         }
 
         AfterEach -Scriptblock {
@@ -71,6 +71,7 @@ Describe "Sort-AndMoveItems.ps1" {
             # prepare
             $relTestFolder = Resolve-Path -Relative "$testFolder"
             $expectedStructure = @(
+                # FIXME: use join path to resolve paths
                 "$relTestFolder/target/2019-09-10/001.JPEG",
                 "$relTestFolder/target/2020-01-17/002.JPEG",
                 "$relTestFolder/target/2020-02-12/003.JPEG",
