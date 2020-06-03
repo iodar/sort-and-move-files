@@ -46,10 +46,15 @@ function Start-CreationOfNewStructureAndMoveFiles {
             New-Item -Type Directory -Path "$currentGroupTarget"
         }
         else {
+            # FIXME: 2020-06-03 iodar dirty fix, this should be corrected
+            # ideally this 'while' construct is refactored and the regex deleting
+            # the current postfix can be refactored
             while (Test-Path $currentGroupTarget) {
                 # transform from int to string and left pad `0`
                 $autoIncrementIndex++
                 $postfix = $autoIncrementIndex.ToString().PadLeft(3, '0')
+                # delete autoincrement postfix if one exists
+                $currentGroupTarget = $currentGroupTarget -replace "_\d{3}$", ""
                 # append postfix
                 $currentGroupTarget += "_$postfix"
             }
