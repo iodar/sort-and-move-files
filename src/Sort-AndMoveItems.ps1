@@ -7,11 +7,12 @@ param (
     # the target folder where the files should get moved to
     [Parameter()]
     [string]
-    $TargetFolder,
+    $TargetFolder
+    # TODO: 2020-06-04 dgr parameter will be added later
     # custom postfix to append to folder names
-    [Parameter()]
-    [string]
-    $CustomPostfix
+    # [Parameter()]
+    # [string]
+    # $CustomPostfix
 )
 
 function Get-AllElementsRecurse {
