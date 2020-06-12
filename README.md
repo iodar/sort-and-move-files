@@ -20,16 +20,14 @@
 
 ### Run Tests
 
-> **IMPORTANT:** Flags for activating coverage (`--coverage` respectively `-Coverage`) are currently not working due migration to `pester v5`. Waiting for update of pester docs. After that the scripts will be updated.
-
 Using `bash`
 
 ```bash
-./test.sh [--coverage]
+pwsh -c "Invoke-Pester -Output Detailed"
 ```
 
 Using `pwsh`
 
 ```powershell
-./test.ps1 [-Coverage]
+Invoke-Pester -Output Detailed
 ```
