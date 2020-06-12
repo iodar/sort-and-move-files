@@ -15,12 +15,15 @@ param (
     # $CustomPostfix
 )
 
+# GLOBALS
+$scripName = $MyInvocation.MyCommand.Name
+
 function Get-AllElementsRecurse {
     param(
         [string] $Path
     )
 
-    return Get-ChildItem -Path $Path -Recurse
+    return Get-ChildItem -Path $Path -Recurse -Exclude "$scripName"
 }
 
 function Get-GroupsAndFiles {
