@@ -45,8 +45,7 @@ function Start-CreationOfNewStructureAndMoveFiles {
 
         if (!(Test-Path $currentGroupTarget)) { 
             New-Item -Type Directory -Path "$currentGroupTarget"
-        }
-        else {
+        } else {
             # FIXME: 2020-06-03 iodar dirty fix, this should be corrected
             # ideally this 'while' construct is refactored and the regex deleting
             # the current postfix can be refactored
