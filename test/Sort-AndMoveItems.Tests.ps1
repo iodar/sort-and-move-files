@@ -35,27 +35,51 @@ Describe "Sort-AndMoveItems.ps1" {
         Invoke-CleanUp
     }
     
-    Context "Simple Import" -Tag $tags.acceptance {
-        It "should import all files into structure" {
-            # prepare
-            $relTestFolder = Resolve-Path -Relative "$testFolder"
-            $expectedStructure = @(
-                (Join-Path $relTestFolder "target" "2019-09-10" "001.JPEG"),
-                (Join-Path $relTestFolder "target" "2020-01-17" "002.JPEG"),
-                (Join-Path $relTestFolder "target" "2020-02-12" "003.JPEG"),
-                (Join-Path $relTestFolder "target" "2020-02-12" "004.JPEG"),
-                (Join-Path $relTestFolder "target" "2020-04-13" "005.JPEG")
-            ) | Sort-Object
-            New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
+    Describe "Simple Import" -Tag $tags.acceptance {
 
-            # exec
-            & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
-
-            # assert
-            $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
-            $actualStructure | Should -Be $expectedStructure
+        Context "Running script with dos path style" {
+            It "should import all files into structure" {
+                # prepare
+                $relTestFolder = Resolve-Path -Relative "$testFolder"
+                $expectedStructure = @(
+                    (Join-Path $relTestFolder "target" "2019-09-10" "001.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-01-17" "002.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-02-12" "003.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-02-12" "004.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-04-13" "005.JPEG")
+                ) | Sort-Object
+                New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
+    
+                # exec
+                & $scriptFile -SourceFolder "$testFolder\source" -TargetFolder "$testFolder\target"
+    
+                # assert
+                $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
+                $actualStructure | Should -Be $expectedStructure
+            }
         }
 
+        Context "Running script with unix path style" {
+            It "should import all files into structure" {
+                # prepare
+                $relTestFolder = Resolve-Path -Relative "$testFolder"
+                $expectedStructure = @(
+                    (Join-Path $relTestFolder "target" "2019-09-10" "001.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-01-17" "002.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-02-12" "003.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-02-12" "004.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020-04-13" "005.JPEG")
+                ) | Sort-Object
+                New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
+    
+                # exec
+                & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"
+    
+                # assert
+                $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
+                $actualStructure | Should -Be $expectedStructure
+            }
+        }
     }
 
     Context "Complex Import" {
