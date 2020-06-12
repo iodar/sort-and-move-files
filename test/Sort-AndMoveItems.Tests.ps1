@@ -35,10 +35,10 @@ Describe "Sort-AndMoveItems.ps1" {
         Invoke-CleanUp
     }
     
-    Describe "Simple Import" -Tag $tags.acceptance {
+    Describe "Simple Import" {
 
         Context "Running script with dos path style" {
-            It "should import all files into structure" {
+            It "should import all files into structure" -Tag $tags.acceptance {
                 # prepare
                 $relTestFolder = Resolve-Path -Relative "$testFolder"
                 $expectedStructure = @(
@@ -60,7 +60,7 @@ Describe "Sort-AndMoveItems.ps1" {
         }
 
         Context "Running script with unix path style" {
-            It "should import all files into structure" {
+            It "should import all files into structure" -Tag $tags.acceptance {
                 # prepare
                 $relTestFolder = Resolve-Path -Relative "$testFolder"
                 $expectedStructure = @(
@@ -82,7 +82,7 @@ Describe "Sort-AndMoveItems.ps1" {
         }
     }
 
-    Context "Complex Import" {
+    Describe "Complex Import" {
         Context "3 consecutive imports" {
             It "should create new folder with automatic increment as postfix" -Tag $tags.acceptance {
                 # prepare
