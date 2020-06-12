@@ -7,32 +7,55 @@ param (
     # the target folder where the files should get moved to
     [Parameter()]
     [string]
-    $TargetFolder
-    # TODO: 2020-06-04 dgr parameter will be added later
-    # custom postfix to append to folder names
-    # [Parameter()]
-    # [string]
-    # $CustomPostfix
+    $TargetFolder,
+    [Parameter()]
+    [ValidateSet(
+        "DateString"
+    )]
+    $GroupType,
+    [string[]]
+    $GroupDefintions
 )
 
 # GLOBALS
-$scripName = $MyInvocation.MyCommand.Name
+$scriptName = $MyInvocation.MyCommand.Name
 
 function Get-AllElementsRecurse {
     param(
         [string] $Path
     )
 
-    return Get-ChildItem -Path $Path -Recurse -Exclude "$scripName"
+    return Get-ChildItem -Path $Path -Recurse -Exclude "$scriptName"
 }
 
 function Get-GroupsAndFiles {
     param (
         [System.IO.FileInfo[]] $Files,
-        [string] $GroupDateString = "yyyy-MM-dd"
+        [string[]] $GroupDefintions = @("yyyy-MM-dd"),
+        [ValidateSet(
+            "DateString"
+        )]
+        [string] $GroupType
     )
 
-    return ($Files | Group-Object -Property { $_.LastWriteTime.toString($GroupDateString) })
+    switch ($GroupType) {
+        "DateString" { 
+            return Get-GroupsAndFilesByDateString -Files $Files -GroupDefintions $GroupDefintions
+        }
+    }
+}
+
+function Get-GroupsAndFilesByDateString {
+    [System.IO.FileInfo[]] $Files,
+    [string[]] $GroupDefintions
+
+    $groupCriteriasArray = [System.Collections.ArrayList]@()
+
+    foreach ($groupDefintion in $GroupDefintions) {
+        $groupCriteriasArray.Add( { $_.LastWriteTime.toString($groupDefintion) })
+    }
+
+    return ($Files | Group-Object -Property $groupCriteriasArray)
 }
 
 function Start-CreationOfNewStructureAndMoveFiles {
@@ -76,5 +99,7 @@ function Start-CreationOfNewStructureAndMoveFiles {
 }
 
 $elementsToGroupAndMove = Get-AllElementsRecurse -Path $SourceFolder
-$groupsAndFiles = Get-GroupsAndFiles -GroupDateString "yyyy-MM-dd" -Files $elementsToGroupAndMove
-Start-CreationOfNewStructureAndMoveFiles -Target $TargetFolder -GroupsAndFiles $groupsAndFiles
+Write-Output $elementsToGroupAndMove
+$groupsAndFiles = Get-GroupsAndFiles -Files $elementsToGroupAndMove -GroupType $GroupType -GroupDefintions $GroupDefintions
+Write-Output $groupsAndFiles
+# Start-CreationOfNewStructureAndMoveFiles -Target $TargetFolder -GroupsAndFiles $groupsAndFiles

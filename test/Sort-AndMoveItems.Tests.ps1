@@ -51,7 +51,7 @@ Describe "Sort-AndMoveItems.ps1" {
                 New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
     
                 # exec
-                & $scriptFile -SourceFolder "$testFolder\source" -TargetFolder "$testFolder\target"
+                & $scriptFile -SourceFolder "$testFolder\source" -TargetFolder "$testFolder\target"  -GroupType DateString -GroupDefintions "yyyy-MM-dd"
     
                 # assert
                 $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
@@ -73,7 +73,7 @@ Describe "Sort-AndMoveItems.ps1" {
                 New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
     
                 # exec
-                & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"
+                & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target"  -GroupType DateString -GroupDefintions "yyyy-MM-dd"
     
                 # assert
                 $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
@@ -103,7 +103,7 @@ Describe "Sort-AndMoveItems.ps1" {
                 ) | Sort-Object
 
                 # exec #1/3
-                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
+                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve) -GroupType DateString -GroupDefintions "yyyy-MM-dd"
                 
                 # create new data
                 New-TestdataSet -Target (Join-Path $testFolder "source" -Resolve) -TestdataMap @{
@@ -113,7 +113,7 @@ Describe "Sort-AndMoveItems.ps1" {
                 }
                 
                 # exec #2/3
-                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
+                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve) -GroupType DateString -GroupDefintions "yyyy-MM-dd"
                 
                 # create new data
                 New-TestdataSet -Target (Join-Path $testFolder "source" -Resolve) -TestdataMap @{
@@ -122,10 +122,32 @@ Describe "Sort-AndMoveItems.ps1" {
                 }
 
                 # exec #3/3
-                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve)
+                & $scriptFile -SourceFolder (Join-Path $testFolder "source" -Resolve) -TargetFolder (Join-Path $testFolder "target" -Resolve) -GroupType DateString -GroupDefintions "yyyy-MM-dd"
 
                 # assert
                 $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative) | Sort-Object
+                $actualStructure | Should -Be $expectedStructure
+            }
+        }
+
+        Context "Import with deep nested structure" {
+            It "should move files and create nested structure" -Tag $tags.acceptance {
+                # prepare
+                $relTestFolder = Resolve-Path -Relative "$testFolder"
+                $expectedStructure = @(
+                    (Join-Path $relTestFolder "target" "2019" "09-10" "001.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020" "01-17" "002.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020" "02-12" "003.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020" "02-12" "004.JPEG"),
+                    (Join-Path $relTestFolder "target" "2020" "04-13" "005.JPEG")
+                ) | Sort-Object
+                New-Testdata -TargetFolder (Join-Path $testFolder "source" -Resolve)
+    
+                # exec
+                & $scriptFile -SourceFolder "$testFolder/source" -TargetFolder "$testFolder/target" -GroupType DateString -GroupDefintions "yyyy", "MM-dd"
+    
+                # assert
+                $actualStructure = @(Resolve-Path (Get-ChildItem -Recurse -Path (Join-Path $testFolder "target" "*" -Resolve)).FullName -Relative)
                 $actualStructure | Should -Be $expectedStructure
             }
         }
