@@ -7,7 +7,13 @@ param (
     # the target folder where the files should get moved to
     [Parameter()]
     [string]
-    $TargetFolder
+    $TargetFolder,
+    [Parameter()]
+    [ValidateSet("DateString", "FileName")]
+    $GroupType,
+    [Parameter()]
+    [Switch]
+    $CopyMode
     # TODO: 2020-06-04 dgr parameter will be added later
     # custom postfix to append to folder names
     # [Parameter()]
@@ -29,10 +35,39 @@ function Get-AllElementsRecurse {
 function Get-GroupsAndFiles {
     param (
         [System.IO.FileInfo[]] $Files,
+        [ValidateSet("DateString", "FileName")] $GroupType
+    )
+
+    switch ($GroupType) {
+        "DateString" {
+            return Get-GroupAndFilesByDateString -Files $Files
+        }
+        "FileName" {
+            return Get-GroupAndFilesByFileNamePattern -Files $Files
+        }
+        Default {
+            return Get-GroupAndFilesByDateString -Files $Files
+        }
+    }
+}
+
+function Get-GroupAndFilesByDateString {
+    param (
+        [System.IO.FileInfo[]] $Files,
         [string] $GroupDateString = "yyyy-MM-dd"
     )
 
     return ($Files | Group-Object -Property { $_.LastWriteTime.toString($GroupDateString) })
+}
+
+function Get-GroupAndFilesByFileNamePattern {
+    param (
+        [System.IO.FileInfo[]] $Files,
+        [string] $FileNamePattern = "\d{4}\-\d{2}\-\d{2}"
+    )
+        
+        
+    return ($Files | Group-Object -Property { $_.Name -match $FileNamePattern > $Null; $Matches[0] })
 }
 
 function Start-CreationOfNewStructureAndMoveFiles {
@@ -70,11 +105,16 @@ function Start-CreationOfNewStructureAndMoveFiles {
         $_.Group | ForEach-Object {
             $fileName = $_.Name
             $currentFileName = $_.FullName
-            Move-Item -Path "$currentFileName" -Destination "$currentGroupTarget/$fileName"
+
+            if ($CopyMode) {
+                Copy-Item -Path "$currentFileName" -Destination "$currentGroupTarget/$fileName"
+            } else {
+                Move-Item -Path "$currentFileName" -Destination "$currentGroupTarget/$fileName"
+            }
         }
     }
 }
 
 $elementsToGroupAndMove = Get-AllElementsRecurse -Path $SourceFolder
-$groupsAndFiles = Get-GroupsAndFiles -GroupDateString "yyyy-MM-dd" -Files $elementsToGroupAndMove
+$groupsAndFiles = Get-GroupsAndFiles -GroupType $GroupType -Files $elementsToGroupAndMove
 Start-CreationOfNewStructureAndMoveFiles -Target $TargetFolder -GroupsAndFiles $groupsAndFiles
